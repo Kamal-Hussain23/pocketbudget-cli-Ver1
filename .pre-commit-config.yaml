@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.22
+    hooks:
+      - id: ruff
+        name: ruff lint
+        args: [--fix, --select, E4,E7,E9,F,I,C901, --max-complexity=7]
+      - id: ruff-format
+        name: ruff format
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.16.0
+    hooks:
+      - id: mypy
+        name: mypy strict
+        args: [--strict]
+        additional_dependencies: [pytest]
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: python -m pytest
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true

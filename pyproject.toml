@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pocketbudget"
+version = "0.1.0"
+description = "A personal expense and budget tracking CLI."
+requires-python = ">=3.11"
+
+[project.scripts]
+pocketbudget = "pocketbudget.cli:main"
+
+[tool.setuptools]
+packages = ["pocketbudget"]

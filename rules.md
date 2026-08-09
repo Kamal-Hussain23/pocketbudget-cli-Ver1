@@ -10,7 +10,7 @@ There are no wrong answers, but there are inconsistent ones. Once you decide a r
 
 *What currency does your application use, and how is money formatted when it's displayed?*
 
-> $Only categories Food and Transport should be allowed
+> $ (Dollar Sign)
 
 ---
 
@@ -18,7 +18,7 @@ There are no wrong answers, but there are inconsistent ones. Once you decide a r
 
 *Which expense categories are allowed? Limit yourself to 3–5. What happens if someone uses a category that isn't on your list?*
 
-> _Your answer:_
+> _Only categories Food,Utilities, Entertainment and Transport should be allowed. Any other catergory should give me an error.
 
 ---
 
@@ -42,8 +42,7 @@ There are no wrong answers, but there are inconsistent ones. Once you decide a r
 
 Now turn each rule above into the test you will write **before** the implementation exists. Name the behaviour you'd assert.
 
-- [ ] Rule 1 (Currency) →only Dollar currency should be allowed any other currency should result in error message
-
-- [ ] Rule 2 (Categories) →only  Only categories Food and Transport should be possible. Error message should be displayed in case of other category.
-- [ ] Rule 3 (Overspending) →Display error message in case of overspending.
-- [ ] Rule 4 (Budget Limits) →Block transaction and error message is displayed
+- [ ] Rule 1 (Currency) → The system shall accept only USD as a valid currency; any other currency must result in an error message.
+- [ ] Rule 2 (Categories) → The system shall accept only the following categories: Food, Utilities, Entertainment, and Transport. Any other category must result in an error message
+- [ ] Rule 3 (Overspending) → The system shall display an error message when the spending amount exceeds the defined budget threshold
+- [ ] Rule 4 (Budget Limits) → The system shall block the transaction and display an error message when overspending is detected

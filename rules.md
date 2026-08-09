@@ -18,7 +18,7 @@ There are no wrong answers, but there are inconsistent ones. Once you decide a r
 
 *Which expense categories are allowed? Limit yourself to 3–5. What happens if someone uses a category that isn't on your list?*
 
-> _Only categories Food,Utilities, Entertainment and Transport should be allowed. Any other catergory should give me an error.
+> _Only categories Food,Utilities, Entertainment and Transport should be allowed. Any other catergory should give me an error message.
 
 ---
 

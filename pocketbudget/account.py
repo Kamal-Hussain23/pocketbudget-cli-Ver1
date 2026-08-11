@@ -1,3 +1,11 @@
+from pocketbudget.exceptions import (
+    BudgetExceededError,
+    InsufficientBalanceError,
+    InvalidAmountError,
+    InvalidBudgetError,
+    InvalidCategoryError,
+)
+
 VALID_CATEGORIES = ("Food", "Utilities", "Entertainment", "Transport")
 
 
@@ -22,19 +30,19 @@ class Account:
 
     def add_income(self, amount: int) -> None:
         if amount <= 0:
-            raise ValueError("income amount must be positive")
+            raise InvalidAmountError("income amount must be positive")
         self._balance += amount
         self._history.append(("income", amount))
 
     def add_expense(self, amount: int, category: str = "") -> None:
         if amount <= 0:
-            raise ValueError("expense amount must be positive")
+            raise InvalidAmountError("expense amount must be positive")
         if category and category not in VALID_CATEGORIES:
-            raise ValueError("invalid category")
+            raise InvalidCategoryError("invalid category")
         if category in self._budgets and amount > self._remaining(category):
-            raise ValueError("expense exceeds category budget")
+            raise BudgetExceededError("expense exceeds category budget")
         if amount > self._balance:
-            raise ValueError("insufficient balance")
+            raise InsufficientBalanceError("insufficient balance")
         self._balance -= amount
         if category:
             self._history.append(("expense", amount, category))
@@ -44,9 +52,9 @@ class Account:
 
     def set_budget(self, category: str, limit: int) -> None:
         if category not in VALID_CATEGORIES:
-            raise ValueError("invalid category")
+            raise InvalidCategoryError("invalid category")
         if limit <= 0:
-            raise ValueError("budget must be positive")
+            raise InvalidBudgetError("budget must be positive")
         self._budgets[category] = limit
         self._spent.setdefault(category, 0)
 

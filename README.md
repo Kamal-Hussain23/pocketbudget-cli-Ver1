@@ -1,20 +1,105 @@
-# pocketbudget-cli-Ver1
+# PocketBudget
 
 A personal expense and budget tracking CLI. Track income and expenses against
-per-category budgets, with state persisted to `data/budget.json`.
+per-category budgets from your terminal, with state persisted to
+`data/budget.json`.
 
-## Commands
+**The problem it solves:** keeping a budget in your head (or a spreadsheet) is
+error-prone. PocketBudget gives you a single source of truth — a small,
+fast, terminal-based tool that records every dollar in and out, enforces
+per-category spending limits, and blocks overspending before it happens.
 
-- `add-income <amount> <category>` — records a deposit.
-- `add-expense <amount> <category>` — records an expense, validated against
-  category budgets and the total balance.
-- `show-balance` — prints the current balance.
-- `show-history` — lists all executed transactions.
-- `set-budget <category> <limit>` — sets a spending ceiling for a category.
-- `show-summary` — shows category-by-category spending against budgets.
+Rules come from `rules.md`: USD only, four valid categories (Food,
+Utilities, Entertainment, Transport), expenses larger than the balance are
+blocked, and expenses that exceed a category budget are blocked too.
 
-Every command follows the same lifecycle: load the saved state, run the domain
-operation, save the result.
+## Installation & Setup
+
+Requires **Python 3.11+**.
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Kamal-Hussain23/pocketbudget-cli-Ver1.git
+cd pocketbudget-cli-Ver1
+
+# 2. Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+
+# 3. Install the package (editable, includes the `pocketbudget` command)
+pip install -e .
+
+# 4. Install pre-commit hooks (ruff lint, ruff format, mypy strict, pytest)
+pre-commit install
+```
+
+Verify the install:
+
+```bash
+pocketbudget
+# Hello PocketBudget
+```
+
+## Usage Examples
+
+Run every command from the project directory. State is saved to
+`data/budget.json` after each command.
+
+```bash
+# Add income
+pocketbudget add-income 200 Food
+# Income recorded: $200 in Food
+
+# Set a budget for a category
+pocketbudget set-budget Food 100
+# Budget set: Food $100
+
+# Record an expense
+pocketbudget add-expense 40 Food
+# Expense recorded: $40 in Food
+
+# An expense over the category budget is blocked
+pocketbudget add-expense 80 Food
+# Error: expense exceeds category budget
+
+# An expense over the total balance is blocked
+pocketbudget add-expense 500 Transport
+# Error: insufficient balance
+
+# View the current balance
+pocketbudget show-balance
+# Balance: $160
+
+# List all transactions
+pocketbudget show-history
+# income 200
+# expense 40 Food
+
+# View category spending against budgets
+pocketbudget show-summary
+# Food: $40 / $100
+# Utilities: $0 / no budget
+# Entertainment: $0 / no budget
+# Transport: $0 / no budget
+```
+
+## Running the Test Suite
+
+All tests use `pytest` and assert behaviour against the public interface —
+they also cover the encapsulation guarantees below.
+
+```bash
+# From the project root, with the venv activated
+pytest -v
+# 48 passed
+```
+
+The same suite runs automatically on every commit via the local `pytest`
+pre-commit hook. Run all quality gates manually any time:
+
+```bash
+pre-commit run --all-files
+```
 
 ## Design Decisions (Encapsulation Showcase)
 
@@ -68,6 +153,12 @@ assignment:
 - `add_expense(amount, category)` — the only way money is spent.
 - `set_budget(category, limit)` — the only way a budget is created.
 
+Reads that need derived state go through accessor methods too, so outsiders
+never reach inside:
+
+- `spent_in(category)` — how much a category has been spent.
+- `remaining_budget(category)` — the budget left for a category.
+
 This is the "domain methods over direct property access" principle: the class
 owns its invariants, so callers can't leave it in an illegal state.
 
@@ -103,6 +194,7 @@ history, because the load path reuses the guarded domain methods
 | Balance | `_balance` | `balance` (property, no setter) | No — `add_income`/`add_expense` |
 | Transactions | `_history` | `history` (copy) | No — `add_income`/`add_expense` |
 | Budgets | `_budgets` | `budgets` (copy) | No — `set_budget` |
+| Spending per category | `_spent` | `spent_in(category)` | No — `add_expense` |
 
 The application state is encapsulated behind private attributes, exposed
 read-only through properties (with defensive copies), and every mutation flows

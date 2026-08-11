@@ -10,10 +10,12 @@ DEFAULT_DATA_FILE = Path("data") / "budget.json"
 def save(account: Account, path: Path | None = None) -> None:
     target = path or DEFAULT_DATA_FILE
     target.parent.mkdir(parents=True, exist_ok=True)
-    data = {
+    data: dict[str, Any] = {
         "balance": account.balance,
         "history": [list(entry) for entry in account.history],
     }
+    if account.budgets:
+        data["budgets"] = account.budgets
     target.write_text(json.dumps(data))
 
 
@@ -24,6 +26,7 @@ def load(path: Path | None = None) -> Account:
     data = _read_data(source)
     _validate_balance(data)
     account = _rebuild_account(data["history"])
+    _apply_budgets(account, data)
     if account.balance != data["balance"]:
         raise ValueError("balance does not match history")
     return account
@@ -54,12 +57,26 @@ def _rebuild_account(history: Any) -> Account:
 
 
 def _apply_entry(account: Account, entry: Any) -> None:
-    if not isinstance(entry, list) or len(entry) != 2:
+    if not isinstance(entry, list) or len(entry) not in (2, 3):
         raise ValueError("invalid history entry in budget file")
-    kind, amount = entry
+    kind = entry[0]
+    amount = entry[1]
     if kind == "income":
         account.add_income(amount)
     elif kind == "expense":
-        account.add_expense(amount)
+        category = entry[2] if len(entry) == 3 else ""
+        account.add_expense(amount, category)
     else:
         raise ValueError("invalid history entry in budget file")
+
+
+def _apply_budgets(account: Account, data: dict[str, Any]) -> None:
+    budgets = data.get("budgets")
+    if budgets is None:
+        return
+    if not isinstance(budgets, dict):
+        raise ValueError("invalid budgets in budget file")
+    for category, limit in budgets.items():
+        if not isinstance(limit, int) or limit <= 0:
+            raise ValueError("invalid budgets in budget file")
+        account.set_budget(category, limit)

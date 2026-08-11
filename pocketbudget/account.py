@@ -4,7 +4,7 @@ VALID_CATEGORIES = ("Food", "Utilities", "Entertainment", "Transport")
 class Account:
     def __init__(self) -> None:
         self._balance = 0
-        self._history: list[tuple[str, int]] = []
+        self._history: list[tuple[str, int] | tuple[str, int, str]] = []
         self._budgets: dict[str, int] = {}
         self._spent: dict[str, int] = {}
 
@@ -13,8 +13,12 @@ class Account:
         return self._balance
 
     @property
-    def history(self) -> list[tuple[str, int]]:
+    def history(self) -> list[tuple[str, int] | tuple[str, int, str]]:
         return self._history.copy()
+
+    @property
+    def budgets(self) -> dict[str, int]:
+        return self._budgets.copy()
 
     def add_income(self, amount: int) -> None:
         if amount <= 0:
@@ -32,9 +36,11 @@ class Account:
         if amount > self._balance:
             raise ValueError("insufficient balance")
         self._balance -= amount
-        self._history.append(("expense", amount))
         if category:
+            self._history.append(("expense", amount, category))
             self._spent[category] = self._spent.get(category, 0) + amount
+        else:
+            self._history.append(("expense", amount))
 
     def set_budget(self, category: str, limit: int) -> None:
         if category not in VALID_CATEGORIES:

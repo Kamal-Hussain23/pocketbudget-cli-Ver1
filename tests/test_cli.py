@@ -57,9 +57,10 @@ def test_show_summary_displays_spending_against_budget(tmp_path: Path) -> None:
     run_cli("add-expense", "40", "Food", cwd=tmp_path)
     result = run_cli("show-summary", cwd=tmp_path)
     assert result.returncode == 0
-    assert "Food" in result.stdout
-    assert "40" in result.stdout
-    assert "100" in result.stdout
+    assert "Food: $40 / $100" in result.stdout
+    assert "Utilities: $0 / no budget" in result.stdout
+    assert "Entertainment: $0 / no budget" in result.stdout
+    assert "Transport: $0 / no budget" in result.stdout
 
 
 def test_expense_over_budget_is_blocked(tmp_path: Path) -> None:

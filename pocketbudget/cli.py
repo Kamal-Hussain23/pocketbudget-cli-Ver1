@@ -78,10 +78,13 @@ def _set_budget(args: list[str]) -> None:
 
 def _show_summary(_args: list[str]) -> None:
     account = storage.load()
-    for category, budget in account.budgets.items():
-        remaining = account.remaining_budget(category)
-        spent = budget - remaining if remaining is not None else budget
-        print(f"{category}: ${spent} / ${budget}")
+    for category in VALID_CATEGORIES:
+        budget = account.budgets.get(category)
+        spent = account.spent_in(category)
+        if budget is None:
+            print(f"{category}: ${spent} / no budget")
+        else:
+            print(f"{category}: ${spent} / ${budget}")
 
 
 def _validate_category(category: str) -> None:

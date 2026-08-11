@@ -63,5 +63,8 @@ class Account:
             return None
         return self._remaining(category)
 
+    def spent_in(self, category: str) -> int:
+        return self._spent.get(category, 0)
+
     def _remaining(self, category: str) -> int:
         return self._budgets[category] - self._spent.get(category, 0)
